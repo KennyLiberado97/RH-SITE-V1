@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion, useMotionValue, animate, useMotionValueEvent } from 'motion/react';
 import { getSupabase } from './lib/supabase';
 import { 
   ShieldCheck, 
@@ -25,6 +25,25 @@ import {
 import { useState, useEffect, FormEvent } from 'react';
 
 // --- Components ---
+
+const Counter = ({ value, decimals = 0, suffix = "" }: { value: number; decimals?: number; suffix?: string }) => {
+  const count = useMotionValue(0);
+  const [displayValue, setDisplayValue] = useState("0");
+
+  useEffect(() => {
+    const controls = animate(count, value, { 
+      duration: 2,
+      ease: "easeOut"
+    });
+    return controls.stop;
+  }, [value, count]);
+
+  useMotionValueEvent(count, "change", (latest) => {
+    setDisplayValue(latest.toFixed(decimals));
+  });
+
+  return <span>{displayValue}{suffix}</span>;
+};
 
 const WHATSAPP_LINK = "https://wa.me/5511961759438";
 const API_DOCS_LINK = "https://api.liberadoapp.com/docs";
@@ -311,48 +330,15 @@ const Navbar = ({ onOpenModal, onOpenPromo }: { onOpenModal: () => void; onOpenP
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <Logo />
 
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#solucao" className="text-sm font-medium text-slate-600 hover:text-brand-electric transition-colors">Solução</a>
-            <a href="#como-funciona" className="text-sm font-medium text-slate-600 hover:text-brand-electric transition-colors">Como Funciona</a>
-            <a href="#segmentos" className="text-sm font-medium text-slate-600 hover:text-brand-electric transition-colors">Segmentos</a>
-            <a href="#precos" className="text-sm font-medium text-slate-600 hover:text-brand-electric transition-colors">Preços</a>
-            <a href={API_DOCS_LINK} target="_blank" rel="noreferrer" className="text-sm font-medium text-slate-600 hover:text-brand-electric transition-colors">API Docs</a>
-          </div>
-
-          <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <button 
               onClick={onOpenModal}
-              className="bg-brand-deep text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-brand-electric transition-all shadow-md"
+              className="bg-brand-deep text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-brand-electric transition-all shadow-lg shadow-brand-deep/10"
             >
-              Solicitar Demo
+              Solicitar demonstração
             </button>
           </div>
-
-          <button className="md:hidden text-brand-deep" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X /> : <Menu />}
-          </button>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-slate-100 p-6 flex flex-col gap-4 shadow-xl"
-          >
-            <a href="#solucao" className="text-lg font-medium" onClick={() => setIsMobileMenuOpen(false)}>Solução</a>
-            <a href="#como-funciona" className="text-lg font-medium" onClick={() => setIsMobileMenuOpen(false)}>Como Funciona</a>
-            <a href="#segmentos" className="text-lg font-medium" onClick={() => setIsMobileMenuOpen(false)}>Segmentos</a>
-            <a href="#precos" className="text-lg font-medium" onClick={() => setIsMobileMenuOpen(false)}>Preços</a>
-            <a href={API_DOCS_LINK} target="_blank" rel="noreferrer" className="text-lg font-medium" onClick={() => setIsMobileMenuOpen(false)}>API Docs</a>
-            <button 
-              onClick={() => { setIsMobileMenuOpen(false); onOpenModal(); }}
-              className="bg-brand-deep text-white py-3 rounded-xl font-semibold text-center"
-            >
-              Solicitar Demo
-            </button>
-          </motion.div>
-        )}
       </nav>
     </div>
   );
@@ -569,32 +555,32 @@ export default function App() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button 
                 onClick={() => setIsContactModalOpen(true)}
-                className="bg-brand-deep text-white px-8 py-4 rounded-full font-bold hover:bg-brand-electric transition-all shadow-xl shadow-brand-deep/20 flex items-center justify-center gap-2 group"
+                className="bg-brand-deep text-white px-10 py-4 rounded-full font-bold hover:bg-brand-electric transition-all shadow-xl shadow-brand-deep/20 flex items-center justify-center gap-2 group"
               >
                 Solicitar demonstração
                 <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-              </button>
-              <button 
-                onClick={() => setIsContactModalOpen(true)}
-                className="bg-white text-brand-deep border border-slate-200 px-8 py-4 rounded-full font-bold hover:bg-slate-50 transition-all flex items-center justify-center"
-              >
-                Falar com especialista
               </button>
             </div>
             
             <div className="mt-12 flex flex-wrap items-center gap-x-10 gap-y-6">
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-brand-deep">+400</span>
+                <span className="text-2xl font-bold text-brand-deep">
+                  +<Counter value={400} />
+                </span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Clientes<br/>Atendidos</span>
               </div>
               <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-brand-deep">+5 Milhões</span>
+                <span className="text-2xl font-bold text-brand-deep">
+                  +<Counter value={5} /> Milhões
+                </span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Consultas<br/>Realizadas</span>
               </div>
               <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold text-brand-deep">100%</span>
+                <span className="text-2xl font-bold text-brand-deep">
+                  <Counter value={100} suffix="%" />
+                </span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-tight">Segurança no seu processo<br/>de decisão</span>
               </div>
             </div>
@@ -718,14 +704,13 @@ export default function App() {
       </section>
 
       {/* Solution Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div>
-            <h2 className="text-3xl md:text-5xl text-brand-deep mb-8">A solução completa para Background Check</h2>
-            <p className="text-slate-600 text-lg mb-8 leading-relaxed">
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
+          <div className="max-w-3xl mb-16">
+            <p className="text-slate-600 text-lg mb-10 leading-relaxed">
               O Liberado App reúne diversas fontes de dados para gerar uma visão completa sobre candidatos, colaboradores e parceiros. Em poucos segundos é possível verificar:
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="inline-grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 text-left mx-auto">
               {[
                 'Processo de KYC completo',
                 'Prova de Vida (Liveness Detection)',
@@ -741,7 +726,7 @@ export default function App() {
                 'Sanções Internacionais'
               ].map((text, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-5 h-5 bg-brand-electric/10 text-brand-electric rounded-full flex items-center justify-center">
+                  <div className="w-5 h-5 bg-brand-electric/10 text-brand-electric rounded-full flex items-center justify-center shrink-0">
                     <CheckCircle2 size={12} />
                   </div>
                   <span className="text-sm font-medium text-slate-700">{text}</span>
@@ -749,19 +734,35 @@ export default function App() {
               ))}
             </div>
           </div>
-          <div className="relative">
+          
+          <div className="relative w-full max-w-4xl">
             <img 
-              src="https://images.unsplash.com/photo-1454165833767-027ffea9e778?auto=format&fit=crop&q=80&w=800&h=600&fm=webp" 
-              alt="" 
-              className="rounded-3xl shadow-2xl object-cover"
+              src="/KYC.jpeg" 
+              alt="KYC" 
+              className="rounded-3xl shadow-2xl object-cover w-full aspect-[21/9]"
               referrerPolicy="no-referrer"
               loading="lazy"
             />
-            <div className="absolute -bottom-10 -left-10 bg-brand-deep text-white p-8 rounded-3xl shadow-2xl max-w-xs hidden sm:block">
-              <p className="text-3xl font-bold mb-2">99.9%</p>
-              <p className="text-xs text-slate-400 uppercase font-bold tracking-widest">Precisão nos dados</p>
-              <div className="h-1 w-full bg-brand-electric mt-4 rounded-full" />
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-brand-deep text-white p-8 rounded-3xl shadow-2xl w-64 text-left"
+            >
+              <p className="text-4xl font-bold mb-2">
+                <Counter value={99.9} decimals={1} suffix="%" />
+              </p>
+              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Precisão nos dados</p>
+              <div className="h-1.5 w-full bg-white/10 mt-4 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  whileInView={{ width: "99.9%" }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 2, ease: "easeOut" }}
+                  className="h-full bg-brand-electric"
+                />
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -943,7 +944,7 @@ export default function App() {
                 features: ['Acesso na plataforma', 'Consulta básica online', 'Consulta avançada', 'Integração via API', 'Relatório Dossiê', 'Suporte dedicado']
               }
             ].map((plan, i) => (
-              <div key={i} className={`relative p-8 rounded-3xl border ${plan.recommended ? 'border-brand-electric shadow-xl ring-1 ring-brand-electric' : 'border-slate-100 shadow-sm'} flex flex-col`}>
+              <div key={i} className={`relative p-8 rounded-3xl border ${plan.recommended ? 'border-brand-electric shadow-xl ring-1 ring-brand-electric' : 'border-slate-100 shadow-sm'} flex flex-col group hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-white`}>
                 {plan.recommended && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-electric text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                     Recomendamos!
@@ -1063,8 +1064,8 @@ export default function App() {
       <section className="py-24 px-6">
         <div className="max-w-5xl mx-auto bg-brand-electric rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-brand-electric/30">
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-            <div className="absolute top-10 left-10 w-40 h-40 border-4 border-white rounded-full" />
-            <div className="absolute bottom-10 right-10 w-60 h-60 border-4 border-white rounded-full" />
+            <div className="absolute top-0 left-0 w-40 h-40 border-4 border-white rounded-full -ml-24 -mt-24" />
+            <div className="absolute bottom-0 right-0 w-60 h-60 border-4 border-white rounded-full -mr-40 -mb-40" />
           </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1075,18 +1076,12 @@ export default function App() {
             <p className="text-white/80 text-lg mb-12 max-w-2xl mx-auto">
               Junte-se a centenas de empresas que utilizam o Liberado App para construir equipes e parcerias de confiança.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <button 
                 onClick={() => setIsContactModalOpen(true)}
-                className="bg-white text-brand-electric px-10 py-5 rounded-full font-bold text-lg hover:bg-slate-100 transition-all shadow-xl"
+                className="bg-brand-deep text-white px-12 py-5 rounded-full font-bold text-lg hover:bg-brand-deep/90 transition-all shadow-xl flex items-center gap-3"
               >
-                Solicitar demonstração
-              </button>
-              <button 
-                onClick={() => setIsContactModalOpen(true)}
-                className="bg-brand-deep text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-brand-deep/90 transition-all"
-              >
-                Falar com especialista
+                Solicitar demonstração <ArrowRight size={20} />
               </button>
             </div>
           </motion.div>
