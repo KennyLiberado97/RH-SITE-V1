@@ -707,6 +707,9 @@ export default function App() {
       <section className="py-24 px-6 bg-white">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
           <div className="max-w-3xl mb-16">
+            <h2 className="text-3xl md:text-5xl text-brand-deep mb-8">
+              A solução completa para Background Check
+            </h2>
             <p className="text-slate-600 text-lg mb-10 leading-relaxed">
               O Liberado App reúne diversas fontes de dados para gerar uma visão completa sobre candidatos, colaboradores e parceiros. Em poucos segundos é possível verificar:
             </p>
